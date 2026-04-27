@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 10.1: Magnets Game 🧲🎀</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;800;900&display=swap" rel="stylesheet">
+    
+    <style>
+        body { font-family: 'Nunito', sans-serif; }
+
+        /* Magical Animations */
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        @keyframes pulse-soft {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.95; transform: scale(0.98); }
+        }
+        @keyframes pop-in {
+            0% { transform: scale(0.8); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .animate-float { animation: float 3s ease-in-out infinite; }
+        .animate-pulse-soft { animation: pulse-soft 2s ease-in-out infinite; }
+        .animate-pop-in { animation: pop-in 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+
+        /* Custom Button Hover */
+        .quiz-btn {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .quiz-btn:hover:not(:disabled) {
+            transform: translateY(-3px) scale(1.01);
+            box-shadow: 0 10px 15px -3px rgba(244, 114, 182, 0.3);
+        }
+        
+        /* Scrollbar for the report */
+        .custom-scrollbar::-webkit-scrollbar { width: 8px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #fce7f3; border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #f472b6; border-radius: 10px; }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-pink-100 via-purple-50 to-pink-100 min-h-screen text-purple-900 flex items-center justify-center p-4 selection:bg-pink-300 selection:text-white">
+
+    <!-- Game Container -->
+    <div id="app-container" class="max-w-xl w-full bg-white/90 backdrop-blur-sm rounded-[2.5rem] shadow-2xl border-4 border-pink-200 overflow-hidden relative min-h-[500px] flex flex-col">
+        <!-- Top decorative bar -->
+        <div class="h-4 bg-gradient-to-r from-pink-400 via-purple-400 to-pink-400 w-full shrink-0"></div>
+
+        <!-- Dynamic Content Root -->
+        <div id="root" class="flex-grow p-6 md:p-8 flex flex-col justify-center"></div>
+    </div>
+
+    <script>
+        // --- QUIZ DATA (Chapter 10.1) ---
+        const quizData = [
+            {
+                q: "Where is a magnet's force the absolute strongest? 💪",
+                opts: [
+                    { t: "Right in the middle 🎯", c: false },
+                    { t: "At the Magnetic Poles (North & South) 🧭", c: true },
+                    { t: "On the top and bottom edges ⬆️", c: false },
+                    { t: "It's the same everywhere 🤷‍♀️", c: false }
+                ],
+                exp: "Yass! The magnetic field is strongest at the North and South poles. That's where the field lines are closest together!"
+            },
+            {
+                q: "What is the golden rule when two North poles meet? 🙅‍♀️",
+                opts: [
+                    { t: "Like poles REPEL (push apart) 💔", c: true },
+                    { t: "Like poles ATTRACT (pull together) 💕", c: false },
+                    { t: "They explode! 💥", c: false },
+                    { t: "They lose their magnetism 📉", c: false }
+                ],
+                exp: "Perfect! Like poles (N-N or S-S) always repel. Unlike poles (N-S) attract!"
+            },
+            {
+                q: "Which group of fabulous materials are naturally magnetic? ✨",
+                opts: [
+                    { text: "Gold, Silver, Platinum 👑", c: false },
+                    { t: "Iron, Nickel, Cobalt 🧲", c: true },
+                    { text: "Plastic, Wood, Rubber 🌳", c: false },
+                    { text: "Copper, Aluminum, Zinc 🥉", c: false }
+                ],
+                exp: "Iron, Nickel, and Cobalt (and steel, which is made of iron) are our magnetic besties!"
+            },
+            {
+                q: "How can you magnetise a cute steel needle? 🪡",
+                opts: [
+                    { t: "Rub it back and forth randomly ↔️", c: false },
+                    { t: "Stroke it with a permanent magnet in the SAME direction! ➡️", c: true },
+                    { t: "Put it in the freezer 🧊", c: false },
+                    { t: "Sing to it! 🎤", c: false }
+                ],
+                exp: "Stroking it in the same direction about 50 times aligns all its little atomic magnets perfectly!"
+            },
+            {
+                q: "What is the invisible magic called that surrounds a magnet? 🪄",
+                opts: [
+                    { t: "A force field 🛡️", c: false },
+                    { t: "A magnetic field 🧲", c: true },
+                    { t: "An electric zone ⚡", c: false },
+                    { t: "A gravity bubble 🌍", c: false }
+                ],
+                exp: "It's the Magnetic Field! It's the region around the magnet where its pulling or pushing force acts."
+            },
+            {
+                q: "Which of these is a STRICT rule for drawing magnetic field lines? 📏",
+                opts: [
+                    { t: "They start at South and end at North ⬅️", c: false },
+                    { t: "They can cross each other if they want to 🔀", c: false },
+                    { t: "They MUST never cross each other! 🚫", c: true },
+                    { t: "They break in the middle 💔", c: false }
+                ],
+                exp: "Field lines are very organized! They never cross, and they always travel from North to South."
+            },
+            {
+                q: "Why does the Earth act like a giant, beautiful magnet? 🌍",
+                opts: [
+                    { t: "Because of swirling liquid iron and nickel in its outer core! 🌋", c: true },
+                    { t: "Because there's a giant bar magnet buried in the North Pole 🧊", c: false },
+                    { t: "Because the moon's gravity pulls on it 🌙", c: false },
+                    { t: "Because it spins really fast 🌪️", c: false }
+                ],
+                exp: "So smart! The liquid iron and nickel swirling in the Earth's outer core creates our global magnetic field!"
+            }
+        ];
+
+        const motivationalPhrases = [
+            "You're a genius, bestie! ✨",
+            "Magnetically attractive brain! 🧲",
+            "Keep glowing, you got this! 💖",
+            "Absolutely flawless! 👑",
+            "Yasss! Smart and cute! 💅"
+        ];
+
+        // --- STATE ---
+        let currentQIndex = 0;
+        let score = 0;
+        let userAnswers = []; // Store history for the report
+        let audioCtx = null;
+        let isAnswering = false;
+
+        const root = document.getElementById('root');
+
+        // --- AUDIO SYSTEM ---
+        function initAudio() {
+            if (!audioCtx) {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                audioCtx = new AudioContext();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        function playSound(type) {
+            if (!audioCtx) return;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            if (type === 'correct') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(523.25, audioCtx.currentTime); // C5
+                osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.1); // E5
+                osc.frequency.setValueAtTime(880.00, audioCtx.currentTime + 0.2); // A5
+                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.5);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.5);
+            } else {
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(300, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(200, audioCtx.currentTime + 0.3);
+                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.3);
+            }
+        }
+
+        // --- VIEWS ---
+        function renderStart() {
+            root.innerHTML = `
+                <div class="text-center space-y-6 flex flex-col items-center animate-pop-in">
+                    <div class="w-24 h-24 bg-pink-100 rounded-full flex items-center justify-center animate-float shadow-inner border-4 border-white">
+                        <i data-lucide="magnet" class="w-12 h-12 text-pink-500"></i>
+                    </div>
+                    <h1 class="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-purple-500">
+                        Magnets Master! 🧲✨
+                    </h1>
+                    <p class="text-lg text-purple-700 font-medium px-4">
+                        Ready to test your magnetic brain on Chapter 10.1? Let's get that A*!
+                    </p>
+                    <div class="pt-4 w-full px-8">
+                        <button onclick="startQuiz()" class="w-full py-4 px-6 bg-gradient-to-r from-pink-400 to-purple-400 hover:from-pink-500 hover:to-purple-500 text-white rounded-2xl font-bold text-xl shadow-lg transform transition active:scale-95 flex items-center justify-center gap-2">
+                            <i data-lucide="sparkles" class="w-6 h-6"></i> Start the Magic!
+                        </button>
+                        <a href="ayosh_hub.html" class="mt-4 inline-block text-purple-500 hover:text-pink-500 font-bold transition-colors">
+                            &larr; Back to Hub
+                        </a>
+                    </div>
+                </div>
+            `;
+            lucide.createIcons();
+        }
+
+        window.startQuiz = function() {
+            initAudio();
+            currentQIndex = 0;
+            score = 0;
+            userAnswers = [];
+            renderQuestion();
+        }
+
+        function renderQuestion() {
+            isAnswering = false;
+            const q = quizData[currentQIndex];
+            
+            // Build Hearts Progress
+            let heartsHtml = '';
+            for(let i=0; i<quizData.length; i++) {
+                let fill = i <= currentQIndex ? 'currentColor' : 'none';
+                let opacity = i <= currentQIndex ? '1' : '0.3';
+                heartsHtml += `<svg class="w-5 h-5 text-pink-400" style="opacity: ${opacity};" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="${fill}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>`;
+            }
+
+            let optionsHtml = q.opts.map((opt, idx) => `
+                <button id="opt-${idx}" onclick="handleOption(${idx}, ${opt.c})" class="quiz-btn w-full text-left p-4 rounded-2xl border-2 border-pink-100 bg-white font-medium text-purple-700 hover:bg-pink-50 hover:border-pink-300">
+                    ${opt.t || opt.text}
+                </button>
+            `).join('');
+
+            root.innerHTML = `
+                <div class="space-y-6 w-full animate-pop-in">
+                    <div class="flex justify-between items-center border-b-2 border-pink-100 pb-4">
+                        <div class="flex space-x-1 flex-wrap max-w-[70%]">${heartsHtml}</div>
+                        <span class="font-bold text-pink-500 bg-pink-100 px-3 py-1 rounded-full text-sm shrink-0">
+                            Score: ${score} 💖
+                        </span>
+                    </div>
+                    
+                    <div class="bg-purple-50 p-5 rounded-2xl border-2 border-purple-100 shadow-inner">
+                        <h2 class="text-xl font-bold text-purple-800 leading-snug">
+                            <span class="text-pink-400">Q${currentQIndex + 1}.</span> ${q.q}
+                        </h2>
+                    </div>
+                    
+                    <div class="space-y-3" id="options-container">
+                        ${optionsHtml}
+                    </div>
+                    
+                    <div id="feedback-container" class="hidden mt-6 animate-pop-in"></div>
+                </div>
+            `;
+        }
+
+        window.handleOption = function(idx, isCorrect) {
+            if (isAnswering) return;
+            isAnswering = true;
+            
+            const q = quizData[currentQIndex];
+            const feedbackContainer = document.getElementById('feedback-container');
+            const clickedBtn = document.getElementById(`opt-${idx}`);
+            const selectedText = q.opts[idx].t || q.opts[idx].text;
+            
+            // Save to history for the report
+            userAnswers.push({
+                question: q.q,
+                selected: selectedText,
+                isCorrect: isCorrect,
+                explanation: q.exp
+            });
+
+            // Disable all buttons
+            document.querySelectorAll('#options-container button').forEach(btn => {
+                btn.disabled = true;
+                btn.classList.add('opacity-50', 'cursor-not-allowed');
+                btn.classList.remove('hover:bg-pink-50', 'hover:border-pink-300');
+            });
+
+            if (isCorrect) {
+                score++;
+                playSound('correct');
+                clickedBtn.className = "w-full text-left p-4 rounded-2xl border-2 font-bold bg-green-100 border-green-400 text-green-800 scale-[1.02] shadow-md transition-all";
+                
+                const praise = motivationalPhrases[Math.floor(Math.random() * motivationalPhrases.length)];
+                feedbackContainer.innerHTML = `
+                    <div class="p-4 rounded-2xl animate-pulse-soft border-2 bg-pink-50 border-pink-300">
+                        <p class="font-bold text-lg mb-1 flex items-center gap-2">
+                            <i data-lucide="star" class="w-5 h-5 text-yellow-400" fill="currentColor"></i> ${praise}
+                        </p>
+                        <p class="text-sm font-semibold text-purple-800 opacity-90">${q.exp}</p>
+                    </div>
+                `;
+            } else {
+                playSound('incorrect');
+                clickedBtn.className = "w-full text-left p-4 rounded-2xl border-2 font-bold bg-red-100 border-red-400 text-red-800 scale-[0.98] transition-all";
+                
+                // Highlight the correct one
+                const correctIdx = q.opts.findIndex(o => o.c);
+                const correctBtn = document.getElementById(`opt-${correctIdx}`);
+                correctBtn.classList.remove('opacity-50');
+                correctBtn.classList.add('bg-green-50', 'border-green-300', 'text-green-800');
+
+                feedbackContainer.innerHTML = `
+                    <div class="p-4 rounded-2xl animate-pulse-soft border-2 bg-purple-50 border-purple-300">
+                        <p class="font-bold text-lg mb-1 flex items-center gap-2">
+                            <i data-lucide="heart" class="w-5 h-5 text-purple-400" fill="currentColor"></i> Oopsie! Not quite!
+                        </p>
+                        <p class="text-sm font-semibold text-purple-800 opacity-90">${q.exp}</p>
+                    </div>
+                `;
+            }
+
+            feedbackContainer.classList.remove('hidden');
+            lucide.createIcons();
+
+            setTimeout(() => {
+                if (currentQIndex < quizData.length - 1) {
+                    currentQIndex++;
+                    renderQuestion();
+                } else {
+                    renderReport();
+                }
+            }, 3500); // 3.5 seconds to read feedback
+        }
+
+        function renderReport() {
+            let message = score === quizData.length 
+                ? "Absolute perfection! You're a physics queen! 👑✨" 
+                : score >= quizData.length / 2 
+                    ? "So proud of you! You're glowing with knowledge! 💖"
+                    : "Every mistake is a chance to learn! Keep shining! 🌟";
+
+            // Generate detailed report HTML
+            let reportHtml = userAnswers.map((ans, i) => `
+                <div class="bg-white p-4 rounded-2xl border-2 ${ans.isCorrect ? 'border-green-200' : 'border-red-200'} shadow-sm">
+                    <p class="font-bold text-purple-800 mb-2 text-sm leading-tight">
+                        <span class="${ans.isCorrect ? 'text-green-500' : 'text-red-500'} mr-1">
+                            ${ans.isCorrect ? '✅' : '❌'}
+                        </span>
+                        Q${i + 1}: ${ans.question}
+                    </p>
+                    <div class="bg-gray-50 rounded-xl p-3 mb-2 text-sm">
+                        <span class="text-gray-500 text-xs uppercase font-bold block mb-1">You answered:</span>
+                        <span class="${ans.isCorrect ? 'text-green-600 font-bold' : 'text-red-500 line-through'}">${ans.selected}</span>
+                    </div>
+                    <p class="text-xs text-purple-600 italic bg-purple-50 p-2 rounded-lg border border-purple-100">
+                        <strong>Review:</strong> ${ans.explanation}
+                    </p>
+                </div>
+            `).join('');
+
+            root.innerHTML = `
+                <div class="flex flex-col h-full w-full animate-pop-in">
+                    <div class="text-center mb-6 shrink-0">
+                        <div class="w-20 h-20 mx-auto bg-purple-100 rounded-full flex items-center justify-center mb-4 border-4 border-white shadow-md">
+                            <i data-lucide="award" class="w-10 h-10 text-yellow-500"></i>
+                        </div>
+                        <h3 class="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-purple-500">
+                            Score Report 📊
+                        </h3>
+                        <p class="text-purple-600 font-medium italic mt-2">${message}</p>
+                    </div>
+                    
+                    <div class="bg-pink-50 w-full p-4 rounded-2xl border-2 border-pink-200 text-center mb-6 shrink-0 shadow-inner">
+                        <p class="text-lg text-purple-700 mb-1">Final Score:</p>
+                        <p class="text-4xl font-black text-pink-500">${score} / ${quizData.length}</p>
+                    </div>
+
+                    <!-- Scrollable Report Area -->
+                    <div class="flex-grow overflow-y-auto custom-scrollbar pr-2 space-y-4 mb-6 max-h-[35vh]">
+                        <h4 class="font-bold text-purple-400 text-sm uppercase tracking-wider sticky top-0 bg-white/90 backdrop-blur-sm py-2">Question Breakdown:</h4>
+                        ${reportHtml}
+                    </div>
+
+                    <div class="shrink-0 flex gap-4">
+                        <button onclick="startQuiz()" class="flex-1 py-4 bg-gradient-to-r from-purple-400 to-pink-400 hover:from-purple-500 hover:to-pink-500 text-white rounded-2xl font-bold text-lg shadow-lg transform transition active:scale-95 flex items-center justify-center gap-2">
+                            <i data-lucide="refresh-ccw" class="w-5 h-5"></i> Retake
+                        </button>
+                        <a href="ayosh_hub.html" class="flex-1 py-4 bg-white border-2 border-purple-200 hover:bg-purple-50 text-purple-600 rounded-2xl font-bold text-lg shadow-sm transform transition active:scale-95 flex items-center justify-center gap-2 text-center">
+                            <i data-lucide="home" class="w-5 h-5"></i> Hub
+                        </a>
+                    </div>
+                </div>
+            `;
+            lucide.createIcons();
+        }
+
+        // Init
+        renderStart();
+    </script>
+</body>
+</html>

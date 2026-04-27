@@ -1,184 +1,163 @@
-```html
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Physics Study Time! 🎀</title>
-    <!-- Tailwind CSS for styling -->
+    <title>Ayosh's Magical Study Hub ✨🎀</title>
+    
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Lucide Icons for cute graphics -->
+    <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Google Fonts for a cute rounded font -->
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;800;900&display=swap" rel="stylesheet">
+    
     <style>
-        /* Custom tweaks for the animations */
-        @keyframes pulse-soft {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.9; transform: scale(0.98); }
+        body {
+            font-family: 'Nunito', sans-serif;
         }
-        .animate-pulse-soft {
-            animation: pulse-soft 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+
+        /* Cute Custom Animations */
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-12px); }
+        }
+        
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 15px rgba(244, 114, 182, 0.4); }
+            50% { box-shadow: 0 0 30px rgba(244, 114, 182, 0.8); }
+        }
+
+        @keyframes glitter-fall {
+            0% { transform: translateY(0) scale(0.5) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(50px) scale(1.5) rotate(180deg); opacity: 0; }
+        }
+
+        .animate-float {
+            animation: float 3s ease-in-out infinite;
+        }
+
+        /* Card Hover Effects */
+        .hub-card {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(8px);
+        }
+        
+        .hub-card:hover {
+            transform: translateY(-10px) scale(1.03);
+            border-color: #f472b6; /* pink-400 */
+            box-shadow: 0 25px 30px -5px rgba(236, 72, 153, 0.25), 0 15px 15px -5px rgba(236, 72, 153, 0.1);
+        }
+
+        .hub-card:hover .icon-container {
+            animation: float 1.5s ease-in-out infinite;
+            background-color: #fce7f3; /* pink-100 */
+        }
+
+        /* Sparkle Element for JS Click */
+        .sparkle-particle {
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            font-size: 24px;
+            animation: glitter-fall 1s ease-out forwards;
         }
     </style>
 </head>
-<body class="min-h-screen bg-pink-50 flex items-center justify-center p-4 font-sans text-purple-900">
+<body class="bg-gradient-to-br from-pink-100 via-purple-50 to-pink-100 min-h-screen text-purple-900 overflow-x-hidden selection:bg-pink-300 selection:text-white">
 
-    <!-- Main Game Container -->
-    <div id="app-container" class="max-w-md w-full bg-white rounded-3xl shadow-xl overflow-hidden border-4 border-pink-200 relative">
-        <!-- Decorative Top Banner -->
-        <div class="h-4 bg-gradient-to-r from-pink-300 via-purple-300 to-pink-300 w-full"></div>
+    <!-- Glowing Background Orbs -->
+    <div class="fixed top-[-10%] left-[-10%] w-96 h-96 bg-pink-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-float"></div>
+    <div class="fixed bottom-[-10%] right-[-10%] w-96 h-96 bg-purple-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-float" style="animation-delay: 1.5s;"></div>
 
-        <!-- Screens -->
-        <div id="select-screen" class="hidden"></div>
-        <div id="playing-screen" class="hidden"></div>
-        <div id="end-screen" class="hidden"></div>
+    <div class="relative z-10 max-w-5xl mx-auto px-6 py-12">
+        
+        <!-- Header Section -->
+        <header class="text-center space-y-6 mb-16">
+            <div class="inline-flex items-center justify-center w-32 h-32 bg-white rounded-full shadow-xl border-4 border-pink-300 animate-float relative" style="animation: pulse-glow 3s infinite;">
+                <div class="absolute -top-2 -right-2 text-3xl">👑</div>
+                <img src="https://api.dicebear.com/7.x/micah/svg?seed=Ayosh&backgroundColor=fce7f3" alt="Ayosh Avatar" class="w-24 h-24 rounded-full">
+            </div>
+            
+            <h1 class="text-5xl md:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-pink-500 via-purple-500 to-pink-500 pb-2">
+                Ayosh's Study Hub ✨
+            </h1>
+            <p class="text-xl text-purple-700 font-bold max-w-2xl mx-auto bg-white/60 py-2 px-6 rounded-full inline-block shadow-sm">
+                Ready to ace your IGCSEs, gorgeous? Choose a magical resource! 🎀
+            </p>
+        </header>
+
+        <!-- Resources Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+
+            <!-- Resource 1: Magnets Game -->
+            <a href="index.html" onclick="triggerMagic(event, 'index.html')" class="hub-card block p-8 rounded-[2rem] border-4 border-pink-200 cursor-pointer group text-center">
+                <div class="icon-container w-20 h-20 mx-auto bg-pink-50 rounded-2xl flex items-center justify-center mb-6 transition-colors duration-300 shadow-inner">
+                    <i data-lucide="magnet" class="w-10 h-10 text-pink-500"></i>
+                </div>
+                <h3 class="text-2xl font-black text-purple-800 mb-2 group-hover:text-pink-500 transition-colors">Magnets Game</h3>
+                <p class="text-purple-600 font-semibold">Ch 10.1 • Interactive Quiz</p>
+                <div class="mt-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    <span class="bg-pink-100 text-pink-500 px-4 py-1 rounded-full text-sm font-bold tracking-wide">Play Now ✨</span>
+                </div>
+            </a>
+
+            <!-- Resource 2: Electromagnets Class -->
+            <a href="electromagnets_class.html" onclick="triggerMagic(event, 'electromagnets_class.html')" class="hub-card block p-8 rounded-[2rem] border-4 border-purple-200 cursor-pointer group text-center">
+                <div class="icon-container w-20 h-20 mx-auto bg-purple-50 rounded-2xl flex items-center justify-center mb-6 transition-colors duration-300 shadow-inner">
+                    <i data-lucide="zap" class="w-10 h-10 text-purple-500"></i>
+                </div>
+                <h3 class="text-2xl font-black text-purple-800 mb-2 group-hover:text-purple-500 transition-colors">Electromagnets</h3>
+                <p class="text-purple-600 font-semibold">Ch 10.2 • Animated Notes</p>
+                <div class="mt-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    <span class="bg-purple-100 text-purple-600 px-4 py-1 rounded-full text-sm font-bold tracking-wide">Study Time 📖</span>
+                </div>
+            </a>
+
+            <!-- Resource 3: Pressure Game -->
+            <!-- (Assuming your pressure game is in the same index.html file via the menu) -->
+            <a href="index.html" onclick="triggerMagic(event, 'index.html')" class="hub-card block p-8 rounded-[2rem] border-4 border-rose-200 cursor-pointer group text-center">
+                <div class="icon-container w-20 h-20 mx-auto bg-rose-50 rounded-2xl flex items-center justify-center mb-6 transition-colors duration-300 shadow-inner">
+                    <i data-lucide="wind" class="w-10 h-10 text-rose-500"></i>
+                </div>
+                <h3 class="text-2xl font-black text-purple-800 mb-2 group-hover:text-rose-500 transition-colors">Pressure Game</h3>
+                <p class="text-purple-600 font-semibold">Ch 8.3 & 8.4 • Challenge</p>
+                <div class="mt-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    <span class="bg-rose-100 text-rose-500 px-4 py-1 rounded-full text-sm font-bold tracking-wide">Start Challenge 🐪</span>
+                </div>
+            </a>
+
+            <!-- Resource 4: Workbooks -->
+            <a href="magnets_electro_workbook.pdf" onclick="triggerMagic(event, 'magnets_electro_workbook.pdf')" class="hub-card block p-8 rounded-[2rem] border-4 border-indigo-200 cursor-pointer group text-center lg:col-span-3 max-w-2xl mx-auto w-full">
+                <div class="flex items-center justify-center gap-6">
+                    <div class="icon-container w-20 h-20 bg-indigo-50 rounded-2xl flex items-center justify-center shrink-0 transition-colors duration-300 shadow-inner">
+                        <i data-lucide="book-heart" class="w-10 h-10 text-indigo-500"></i>
+                    </div>
+                    <div class="text-left">
+                        <h3 class="text-2xl font-black text-purple-800 mb-1 group-hover:text-indigo-500 transition-colors">Exam Workbooks (PDF)</h3>
+                        <p class="text-purple-600 font-semibold">Download your IGCSE classified models & secret mark schemes!</p>
+                    </div>
+                </div>
+            </a>
+
+        </div>
+
+        <!-- Footer -->
+        <footer class="mt-16 text-center">
+            <p class="text-purple-500 font-bold flex items-center justify-center gap-2">
+                Made with <i data-lucide="heart" class="w-5 h-5 fill-pink-400 text-pink-400"></i> for Ayosh
+            </p>
+        </footer>
     </div>
 
+    <!-- Scripts for Audio, Glitter, and Icons -->
     <script>
-        // --- DATA ---
-        const magnetsData = [
-            {
-                question: "What is the exact definition of a 'permanent magnet', bestie?",
-                options: [
-                    { text: "An object made from a magnetic material that retains its magnetism for a very long time 🕰️", isCorrect: true },
-                    { text: "A shiny metal that looks pretty ✨", isCorrect: false },
-                    { text: "Any metal that conducts electricity ⚡", isCorrect: false },
-                    { text: "A stone that points to the sun ☀️", isCorrect: false }
-                ],
-                explanation: "Perfect! A permanent magnet keeps its magnetic properties for a really long time!"
-            },
-            {
-                question: "How do we define a 'magnetic pole' in our notes?",
-                options: [
-                    { text: "The middle of the magnet 🎯", isCorrect: false },
-                    { text: "The point on a magnet where the force is strongest! 💪", isCorrect: true },
-                    { text: "The part of the magnet that has no force 😴", isCorrect: false },
-                    { text: "A stick used to hold magnets 🪄", isCorrect: false }
-                ],
-                explanation: "Yass! The poles (North and South) are the absolute strongest parts of the magnet!"
-            },
-            {
-                question: "What does the word 'repel' mean?",
-                options: [
-                    { text: "To pull closer together 💕", isCorrect: false },
-                    { text: "To make magnetic ✨", isCorrect: false },
-                    { text: "To push further apart! 🙅‍♀️", isCorrect: true },
-                    { text: "To disappear entirely 👻", isCorrect: false }
-                ],
-                explanation: "Exactly! Like poles (North & North or South & South) will ALWAYS push further apart, or repel!"
-            },
-            {
-                question: "What is a 'magnetic field', gorgeous?",
-                options: [
-                    { text: "A field made of iron grass 🌱", isCorrect: false },
-                    { text: "The exact center of the Earth 🌍", isCorrect: false },
-                    { text: "A box where we keep our magnets 🎁", isCorrect: false },
-                    { text: "The region around a magnetic material in which a magnetic force acts 🪄", isCorrect: true }
-                ],
-                explanation: "You got it! It's the invisible magical space where the magnet can push or pull!"
-            },
-            {
-                question: "Which of these materials can be made into a magnet? (Hint: Atoms can be aligned!)",
-                options: [
-                    { text: "Plastic, Wood, or Glass 🥤", isCorrect: false },
-                    { text: "Iron, Nickel, or Cobalt 🧲", isCorrect: true },
-                    { text: "Gold, Silver, or Bronze 👑", isCorrect: false },
-                    { text: "Cotton, Silk, or Wool 👗", isCorrect: false }
-                ],
-                explanation: "Flawless! Iron, nickel, and cobalt are the main materials that can be magnetised."
-            },
-            {
-                question: "Why does the Earth act like a giant, beautiful magnet?",
-                options: [
-                    { text: "Because it spins really fast 🌪️", isCorrect: false },
-                    { text: "Because of the liquid iron and nickel in its outer core! 🌋", isCorrect: true },
-                    { text: "Because the sun shines on it ☀️", isCorrect: false },
-                    { text: "Because it's full of permanent magnets underground 🪨", isCorrect: false }
-                ],
-                explanation: "So smart! The swirling liquid iron and nickel in the Earth's core creates our global magnetic field."
-            }
-        ];
+        lucide.createIcons();
 
-        const pressureData = [
-            {
-                question: "How do we define 'pressure' in our physics notes? 📝",
-                options: [
-                    { text: "How heavy something is 🏋️‍♀️", isCorrect: false },
-                    { text: "The amount of force per unit of area 👠", isCorrect: true },
-                    { text: "The speed of particles moving 🏃‍♀️", isCorrect: false },
-                    { text: "The energy of a liquid 💧", isCorrect: false }
-                ],
-                explanation: "Yes! Pressure is calculated as Force divided by Area (p = F/A). It's all about how concentrated a force is!"
-            },
-            {
-                question: "What are the correct units for measuring pressure?",
-                options: [
-                    { text: "Newtons (N) 🍏", isCorrect: false },
-                    { text: "Joules (J) ⚡", isCorrect: false },
-                    { text: "Newtons per square metre (N/m²) 📏", isCorrect: true },
-                    { text: "Kilograms (kg) ⚖️", isCorrect: false }
-                ],
-                explanation: "Perfect! Since we divide Force (Newtons) by Area (square metres), the unit is N/m²!"
-            },
-            {
-                question: "IGCSE Question! Why do gorgeous camels have such large feet? 🐪",
-                options: [
-                    { text: "To spread their weight over a large area, REDUCING pressure so they don't sink in sand! 🏖️", isCorrect: true },
-                    { text: "To INCREASING pressure so they can grip the sand better! 🐾", isCorrect: false },
-                    { text: "To keep their feet warm in the desert! ☀️", isCorrect: false },
-                    { text: "To make them run faster! 💨", isCorrect: false }
-                ],
-                explanation: "Queen answer! Larger area = smaller pressure. This is why tractors also have wide tires!"
-            },
-            {
-                question: "What exactly causes 'gas pressure' inside a cute balloon? 🎈",
-                options: [
-                    { text: "The balloon shrinking 📉", isCorrect: false },
-                    { text: "The effect of forces caused by collisions from gas particles on the walls of the container! 💥", isCorrect: true },
-                    { text: "The air getting heavier outside 🌬️", isCorrect: false },
-                    { text: "Gravity pulling the gas down 🌍", isCorrect: false }
-                ],
-                explanation: "Spot on! The particles are constantly moving and bumping into the walls, pushing outwards!"
-            },
-            {
-                question: "If you heat up a gas, what happens to the pressure and why? 🌡️",
-                options: [
-                    { text: "It decreases, because particles get tired 😴", isCorrect: false },
-                    { text: "It stays the same, temperature doesn't matter 🤷‍♀️", isCorrect: false },
-                    { text: "It increases, because particles gain energy, move faster, and collide with walls more often! 🔥", isCorrect: true },
-                    { text: "It decreases, because particles shrink 🔍", isCorrect: false }
-                ],
-                explanation: "Hotter gas means more energy! They fly around faster and hit the walls more frequently and with more force."
-            },
-            {
-                question: "If you poke holes in a bottle of water, which water jet will travel the furthest?",
-                options: [
-                    { text: "The water from the top hole 🔝", isCorrect: false },
-                    { text: "The water from the middle hole ↔️", isCorrect: false },
-                    { text: "The water from the bottom hole, because liquid pressure increases with depth! 🌊", isCorrect: true },
-                    { text: "They all travel the exact same distance 💧", isCorrect: false }
-                ],
-                explanation: "Yes! The deeper you go, the more water is pushing down from above, so the pressure is highest at the bottom!"
-            }
-        ];
-
-        const motivationalPhrases = [
-            "You're a genius, bestie! ✨",
-            "Flawless physics queen! 👑",
-            "Keep glowing, you got this! 💖",
-            "A+ energy right here! 💅",
-            "Yasss! Smart and cute! 🎀"
-        ];
-
-        // --- STATE VARIABLES ---
-        let currentQuizData = [];
-        let currentQIndex = 0;
-        let score = 0;
-        let selectedOption = null;
-        let feedbackState = null; // 'correct' or 'incorrect'
-        let motivationText = "";
         let audioCtx = null;
 
-        // --- AUDIO SYSTEM ---
         function initAudio() {
             if (!audioCtx) {
                 const AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -189,256 +168,67 @@
             }
         }
 
-        function playSound(type) {
-            if (!audioCtx) return;
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-
-            if (type === 'correct') {
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(523.25, audioCtx.currentTime); // C5
-                osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.1); // E5
-                osc.frequency.setValueAtTime(880.00, audioCtx.currentTime + 0.2); // A5
-                
-                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.5);
-                
-                osc.start();
-                osc.stop(audioCtx.currentTime + 0.5);
-            } else {
-                osc.type = 'triangle';
-                osc.frequency.setValueAtTime(300, audioCtx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(200, audioCtx.currentTime + 0.3);
-                
-                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
-                
-                osc.start();
-                osc.stop(audioCtx.currentTime + 0.3);
-            }
-        }
-
-        // --- VIEW MANAGEMENT ---
-        function hideAllScreens() {
-            document.getElementById('select-screen').classList.add('hidden');
-            document.getElementById('playing-screen').classList.add('hidden');
-            document.getElementById('end-screen').classList.add('hidden');
-        }
-
-        function renderSelectScreen() {
-            hideAllScreens();
-            const screen = document.getElementById('select-screen');
-            screen.innerHTML = `
-                <div class="p-8 text-center space-y-6 flex flex-col items-center">
-                    <div class="w-24 h-24 bg-pink-100 rounded-full flex items-center justify-center animate-bounce">
-                        <i data-lucide="book-heart" class="w-12 h-12 text-pink-500"></i>
-                    </div>
-                    <h1 class="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-purple-500">
-                        Physics Study Time! 🎀
-                    </h1>
-                    <p class="text-lg text-purple-700 font-medium">
-                        Which topic are we mastering today, gorgeous?
-                    </p>
-                    
-                    <div class="w-full space-y-4 pt-4">
-                        <button onclick="startQuiz('magnets')" class="w-full py-4 px-6 bg-gradient-to-r from-pink-400 to-rose-400 hover:from-pink-500 hover:to-rose-500 text-white rounded-2xl font-bold text-lg shadow-lg transform transition active:scale-95 flex items-center justify-center gap-3">
-                            <i data-lucide="magnet" class="w-6 h-6"></i> Magnets (Ch 10.1)
-                        </button>
-                        
-                        <button onclick="startQuiz('pressure')" class="w-full py-4 px-6 bg-gradient-to-r from-purple-400 to-indigo-400 hover:from-purple-500 hover:to-indigo-500 text-white rounded-2xl font-bold text-lg shadow-lg transform transition active:scale-95 flex items-center justify-center gap-3">
-                            <i data-lucide="wind" class="w-6 h-6"></i> Pressure (Ch 8.3/8.4)
-                        </button>
-                    </div>
-                </div>
-            `;
-            screen.classList.remove('hidden');
-            lucide.createIcons();
-        }
-
-        window.startQuiz = function(type) {
+        // Plays a magical sparkling harp sound
+        function playMagicalSound() {
             initAudio();
-            currentQuizData = type === 'magnets' ? magnetsData : pressureData;
-            currentQIndex = 0;
-            score = 0;
-            selectedOption = null;
-            feedbackState = null;
-            renderPlayingScreen();
-        }
-
-        function renderPlayingScreen() {
-            hideAllScreens();
-            const screen = document.getElementById('playing-screen');
-            const q = currentQuizData[currentQIndex];
-
-            // Build Hearts Progress HTML
-            let heartsHtml = '';
-            for(let i=0; i<currentQuizData.length; i++) {
-                let fill = i <= currentQIndex ? 'currentColor' : 'none';
-                let opacity = i <= currentQIndex ? '1' : '0.3';
-                // Using raw SVG for the hearts to ensure dynamic styling works perfectly
-                heartsHtml += `
-                    <svg class="w-5 h-5 text-pink-400" style="opacity: ${opacity};" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="${fill}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
-                    </svg>
-                `;
-            }
-
-            // Build Options HTML
-            let optionsHtml = '';
-            q.options.forEach((opt, idx) => {
-                let btnClass = "w-full text-left p-4 rounded-2xl border-2 transition-all font-medium text-purple-700 hover:bg-pink-50 hover:border-pink-300";
-                
-                if (feedbackState) {
-                    if (opt.isCorrect) {
-                        btnClass = "w-full text-left p-4 rounded-2xl border-2 transition-all font-medium bg-green-100 border-green-400 text-green-800";
-                    } else if (selectedOption === idx) {
-                        btnClass = "w-full text-left p-4 rounded-2xl border-2 transition-all font-medium bg-red-100 border-red-400 text-red-800 opacity-60";
-                    } else {
-                        btnClass = "w-full text-left p-4 rounded-2xl border-2 transition-all font-medium border-gray-200 text-gray-400 opacity-40";
-                    }
-                }
-
-                optionsHtml += `
-                    <button onclick="handleOptionClick(${idx}, ${opt.isCorrect})" ${feedbackState ? 'disabled' : ''} class="${btnClass}">
-                        ${opt.text}
-                    </button>
-                `;
-            });
-
-            // Build Feedback Overlay HTML
-            let feedbackHtml = '';
-            if (feedbackState) {
-                if (feedbackState === 'correct') {
-                    feedbackHtml = `
-                        <div class="p-4 rounded-2xl animate-pulse-soft border-2 bg-pink-50 border-pink-300 mt-6">
-                            <p class="font-bold text-lg mb-1 flex items-center gap-2">
-                                <i data-lucide="star" class="w-5 h-5 text-yellow-400" fill="currentColor"></i> ${motivationText}
-                            </p>
-                            <p class="text-sm font-semibold text-purple-800 opacity-90">${q.explanation}</p>
-                        </div>
-                    `;
-                } else {
-                    feedbackHtml = `
-                        <div class="p-4 rounded-2xl animate-pulse-soft border-2 bg-purple-50 border-purple-300 mt-6">
-                            <p class="font-bold text-lg mb-1 flex items-center gap-2">
-                                <i data-lucide="heart" class="w-5 h-5 text-purple-400" fill="currentColor"></i> Oopsie! Let's check the notes!
-                            </p>
-                            <p class="text-sm font-semibold text-purple-800 opacity-90">${q.explanation}</p>
-                        </div>
-                    `;
-                }
-            }
-
-            screen.innerHTML = `
-                <div class="p-6 space-y-6">
-                    <div class="flex justify-between items-center border-b-2 border-pink-100 pb-4">
-                        <div class="flex space-x-1 flex-wrap">
-                            ${heartsHtml}
-                        </div>
-                        <span class="font-bold text-pink-500 bg-pink-100 px-3 py-1 rounded-full text-sm shrink-0 ml-2">
-                            Score: ${score} 💖
-                        </span>
-                    </div>
-
-                    <div class="space-y-4">
-                        <div class="bg-purple-50 p-4 rounded-2xl border-2 border-purple-100">
-                            <h2 class="text-xl font-bold text-purple-800 leading-snug">${q.question}</h2>
-                        </div>
-                        
-                        <div class="space-y-3">
-                            ${optionsHtml}
-                        </div>
-                    </div>
-
-                    ${feedbackHtml}
-                </div>
-            `;
+            const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
             
-            screen.classList.remove('hidden');
-            lucide.createIcons();
-        }
-
-        window.handleOptionClick = function(index, isCorrect) {
-            if (feedbackState) return;
-
-            selectedOption = index;
-            
-            if (isCorrect) {
-                feedbackState = 'correct';
-                score++;
-                playSound('correct');
-                motivationText = motivationalPhrases[Math.floor(Math.random() * motivationalPhrases.length)];
-            } else {
-                feedbackState = 'incorrect';
-                playSound('incorrect');
-            }
-
-            // Re-render immediately to show feedback styles
-            renderPlayingScreen();
-
-            // Wait 3 seconds, then move to next question or end
-            setTimeout(() => {
-                if (currentQIndex < currentQuizData.length - 1) {
-                    currentQIndex++;
-                    selectedOption = null;
-                    feedbackState = null;
-                    renderPlayingScreen();
-                } else {
-                    renderEndScreen();
-                }
-            }, 3000);
-        }
-
-        function renderEndScreen() {
-            hideAllScreens();
-            const screen = document.getElementById('end-screen');
-            
-            let message = "";
-            if (score === currentQuizData.length) {
-                message = "Absolute perfection! You're a physics queen! 👑✨";
-            } else if (score >= currentQuizData.length / 2) {
-                message = "So proud of you! You're glowing with knowledge! 💖";
-            } else {
-                message = "Every mistake is a chance to learn, beautiful! Keep shining! 🌟";
-            }
-
-            screen.innerHTML = `
-                <div class="p-8 text-center space-y-6 flex flex-col items-center">
-                    <div class="w-24 h-24 bg-purple-100 rounded-full flex items-center justify-center">
-                        <i data-lucide="crown" class="w-12 h-12 text-yellow-500"></i>
-                    </div>
-                    <h1 class="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-purple-500">
-                        Module Complete! 🎀
-                    </h1>
-                    <div class="bg-pink-50 w-full p-4 rounded-2xl border-2 border-pink-200">
-                        <p class="text-lg text-purple-700 mb-2">Your Fabulous Score:</p>
-                        <p class="text-4xl font-black text-pink-500">${score} / ${currentQuizData.length}</p>
-                    </div>
+            notes.forEach((freq, i) => {
+                setTimeout(() => {
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
                     
-                    <p class="text-purple-600 font-medium italic">
-                        ${message}
-                    </p>
-
-                    <button onclick="renderSelectScreen()" class="w-full py-4 px-6 bg-gradient-to-r from-purple-400 to-pink-400 hover:from-purple-500 hover:to-pink-500 text-white rounded-2xl font-bold text-lg shadow-lg transform transition active:scale-95 flex items-center justify-center gap-2">
-                        <i data-lucide="refresh-ccw" class="w-5 h-5"></i> Back to Menu 
-                    </button>
-                </div>
-            `;
-            
-            screen.classList.remove('hidden');
-            lucide.createIcons();
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    
+                    osc.type = 'sine';
+                    osc.frequency.value = freq;
+                    
+                    gain.gain.setValueAtTime(0.05, audioCtx.currentTime); // Soft volume
+                    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.4);
+                    
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.4);
+                }, i * 60); // Stagger notes quickly
+            });
         }
 
-        // --- INIT ---
-        // Start the app on the select screen
-        window.onload = () => {
-            renderSelectScreen();
-        };
+        // Global Glitter Effect on click
+        document.addEventListener('click', (e) => {
+            initAudio(); // Ensures audio context is ready from first click anywhere
+            
+            const emojis = ['✨', '💖', '🎀', '⭐'];
+            const glitter = document.createElement('div');
+            
+            glitter.innerHTML = emojis[Math.floor(Math.random() * emojis.length)];
+            glitter.className = 'sparkle-particle';
+            glitter.style.left = (e.clientX - 12) + 'px';
+            glitter.style.top = (e.clientY - 12) + 'px';
+            
+            document.body.appendChild(glitter);
+            
+            // Remove element after animation
+            setTimeout(() => {
+                glitter.remove();
+            }, 1000);
+        });
+
+        // Function called when a card is clicked
+        window.triggerMagic = function(e, destination) {
+            e.preventDefault(); // Prevent instant navigation
+            playMagicalSound();
+            
+            // Wait for sound and glitter to play before navigating
+            setTimeout(() => {
+                try {
+                    // This line actually opens the new page! (Works correctly on GitHub Pages)
+                    window.location.href = destination; 
+                } catch (err) {
+                    // Suppresses the error in sandboxed iframe environments (like Canvas previews)
+                    console.warn("Navigation prevented by preview environment:", err);
+                }
+            }, 400); 
+        }
     </script>
 </body>
 </html>
-
-```

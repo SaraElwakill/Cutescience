@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 10.2: Electromagnets Game ⚡🎀</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;800;900&display=swap" rel="stylesheet">
+    
+    <style>
+        body { font-family: 'Nunito', sans-serif; }
+
+        /* Magical Animations */
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        @keyframes pulse-soft {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.95; transform: scale(0.98); }
+        }
+        @keyframes pop-in {
+            0% { transform: scale(0.8); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .animate-float { animation: float 3s ease-in-out infinite; }
+        .animate-pulse-soft { animation: pulse-soft 2s ease-in-out infinite; }
+        .animate-pop-in { animation: pop-in 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+
+        /* Custom Button Hover */
+        .quiz-btn {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .quiz-btn:hover:not(:disabled) {
+            transform: translateY(-3px) scale(1.01);
+            box-shadow: 0 10px 15px -3px rgba(168, 85, 247, 0.3); /* purple-500 shadow */
+        }
+        
+        /* Scrollbar for the report */
+        .custom-scrollbar::-webkit-scrollbar { width: 8px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f3e8ff; border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #c084fc; border-radius: 10px; }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-purple-100 via-pink-50 to-purple-100 min-h-screen text-purple-900 flex items-center justify-center p-4 selection:bg-purple-300 selection:text-white">
+
+    <!-- Game Container -->
+    <div id="app-container" class="max-w-xl w-full bg-white/90 backdrop-blur-sm rounded-[2.5rem] shadow-2xl border-4 border-purple-200 overflow-hidden relative min-h-[500px] flex flex-col">
+        <!-- Top decorative bar -->
+        <div class="h-4 bg-gradient-to-r from-purple-400 via-pink-400 to-purple-400 w-full shrink-0"></div>
+
+        <!-- Dynamic Content Root -->
+        <div id="root" class="flex-grow p-6 md:p-8 flex flex-col justify-center"></div>
+    </div>
+
+    <script>
+        // --- QUIZ DATA (Chapter 10.2) ---
+        const quizData = [
+            {
+                q: "What is the ultimate superpower of an electromagnet compared to a permanent magnet? ✨",
+                opts: [
+                    { t: "It's always pink and sparkly 🎀", c: false },
+                    { t: "It can be turned ON and OFF! 🔌", c: true },
+                    { t: "It never ever breaks 🔨", c: false },
+                    { t: "It floats in the air automatically 🎈", c: false }
+                ],
+                exp: "Yass! Because it uses an electrical current, you can control the magnetic field by turning the switch on or off!"
+            },
+            {
+                q: "Which of these is NOT a way to boost the strength of your electromagnet? 💪",
+                opts: [
+                    { t: "Adding more coils of wire 🌀", c: false },
+                    { t: "Increasing the electrical current ⚡", c: false },
+                    { t: "Using a plastic core 🥤", c: true },
+                    { t: "Using an iron core 🧲", c: false }
+                ],
+                exp: "Plastic is non-magnetic! To boost the strength, you MUST use a magnetic core like IRON inside your coil."
+            },
+            {
+                q: "Why are electromagnets perfect for scrapyard cranes picking up old cars? 🏗️",
+                opts: [
+                    { t: "Because they look cooler than normal magnets 😎", c: false },
+                    { t: "Because they are super lightweight 🪶", c: false },
+                    { t: "Because you can turn them OFF to drop the cars exactly where you want! 🚗", c: true },
+                    { t: "Because they use no electricity 🔋", c: false }
+                ],
+                exp: "Exactly! A permanent magnet would pick up the car and never let it go! An electromagnet lets you drop the scrap metal easily."
+            },
+            {
+                q: "How do fabulous Maglev trains use electromagnets to travel so fast? 🚄",
+                opts: [
+                    { t: "They use magnetic repulsion to float above the tracks, reducing friction! ☁️", c: true },
+                    { t: "They pull the train forward with a giant invisible chain ⛓️", c: false },
+                    { t: "They keep the passengers stuck safely to their seats 💺", c: false },
+                    { t: "They power the train's cute headlights 💡", c: false }
+                ],
+                exp: "Floating trains! By using magnetic repulsion, the train hovers above the track. Zero friction means super speeds and a quiet ride!"
+            },
+            {
+                q: "What happens when the electromagnet in an Electric Bell turns ON? 🔔",
+                opts: [
+                    { t: "It sings a cute song 🎵", c: false },
+                    { t: "It attracts the hammer to hit the bell, which then breaks the circuit! 🔨", c: true },
+                    { t: "It pushes the hammer away from the bell 🛑", c: false },
+                    { t: "It makes the bell glow in the dark 🌟", c: false }
+                ],
+                exp: "Perfect! It attracts the hammer to strike the bell. Hitting the bell breaks the circuit, turning the magnet off, so the hammer falls back and starts all over again!"
+            },
+            {
+                q: "What is the job of the electromagnet in an MRI scanner? 🏥",
+                opts: [
+                    { t: "To take an X-ray of your bones 💀", c: false },
+                    { t: "To create a strong magnetic field that aligns atoms in the patient's body! 🧍‍♀️", c: true },
+                    { t: "To keep the hospital warm 🔥", c: false },
+                    { t: "To scan for metal objects in your pockets 🔑", c: false }
+                ],
+                exp: "MRI scanners use giant electromagnets to align atoms in the body, which helps doctors take safe, incredibly detailed pictures of tissues and bones!"
+            },
+            {
+                q: "How do Wind Turbines (Generators) use magnets? 🌪️",
+                opts: [
+                    { t: "The wind turns a coil of wire inside a magnetic field to generate electricity! ⚡", c: true },
+                    { t: "They use magnets to push the wind away 🌬️", c: false },
+                    { t: "The magnets make the turbine blades spin automatically 🎡", c: false },
+                    { t: "They use magnets to attract lightning ⛈️", c: false }
+                ],
+                exp: "So smart! The turning movement of the coil inside the magnetic field generates a voltage (electricity)!"
+            }
+        ];
+
+        const motivationalPhrases = [
+            "You're electric, bestie! ⚡",
+            "Shockingly smart! 💜",
+            "Keep glowing, you got this! ✨",
+            "Absolute perfection! 👑",
+            "Yasss! Physics queen! 💅"
+        ];
+
+        // --- STATE ---
+        let currentQIndex = 0;
+        let score = 0;
+        let userAnswers = []; // Store history for the report
+        let audioCtx = null;
+        let isAnswering = false;
+
+        const root = document.getElementById('root');
+
+        // --- AUDIO SYSTEM ---
+        function initAudio() {
+            if (!audioCtx) {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                audioCtx = new AudioContext();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        function playSound(type) {
+            if (!audioCtx) return;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            if (type === 'correct') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(523.25, audioCtx.currentTime); // C5
+                osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.1); // E5
+                osc.frequency.setValueAtTime(880.00, audioCtx.currentTime + 0.2); // A5
+                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.5);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.5);
+            } else {
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(300, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(200, audioCtx.currentTime + 0.3);
+                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.3);
+            }
+        }
+
+        // --- VIEWS ---
+        function renderStart() {
+            root.innerHTML = `
+                <div class="text-center space-y-6 flex flex-col items-center animate-pop-in">
+                    <div class="w-24 h-24 bg-purple-100 rounded-full flex items-center justify-center animate-float shadow-inner border-4 border-white">
+                        <i data-lucide="zap" class="w-12 h-12 text-purple-500"></i>
+                    </div>
+                    <h1 class="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-500 to-pink-500">
+                        Electromagnet Expert! ⚡
+                    </h1>
+                    <p class="text-lg text-purple-700 font-medium px-4">
+                        Ready to power up your brain on Chapter 10.2? Let's ace this!
+                    </p>
+                    <div class="pt-4 w-full px-8">
+                        <button onclick="startQuiz()" class="w-full py-4 px-6 bg-gradient-to-r from-purple-400 to-pink-400 hover:from-purple-500 hover:to-pink-500 text-white rounded-2xl font-bold text-xl shadow-lg transform transition active:scale-95 flex items-center justify-center gap-2">
+                            <i data-lucide="sparkles" class="w-6 h-6"></i> Power On!
+                        </button>
+                        <a href="ayosh_hub.html" class="mt-4 inline-block text-purple-500 hover:text-pink-500 font-bold transition-colors">
+                            &larr; Back to Hub
+                        </a>
+                    </div>
+                </div>
+            `;
+            lucide.createIcons();
+        }
+
+        window.startQuiz = function() {
+            initAudio();
+            currentQIndex = 0;
+            score = 0;
+            userAnswers = [];
+            renderQuestion();
+        }
+
+        function renderQuestion() {
+            isAnswering = false;
+            const q = quizData[currentQIndex];
+            
+            // Build Hearts Progress (Purple theme for 10.2)
+            let heartsHtml = '';
+            for(let i=0; i<quizData.length; i++) {
+                let fill = i <= currentQIndex ? 'currentColor' : 'none';
+                let opacity = i <= currentQIndex ? '1' : '0.3';
+                heartsHtml += `<svg class="w-5 h-5 text-purple-400" style="opacity: ${opacity};" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="${fill}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>`;
+            }
+
+            let optionsHtml = q.opts.map((opt, idx) => `
+                <button id="opt-${idx}" onclick="handleOption(${idx}, ${opt.c})" class="quiz-btn w-full text-left p-4 rounded-2xl border-2 border-purple-100 bg-white font-medium text-purple-700 hover:bg-purple-50 hover:border-purple-300">
+                    ${opt.t || opt.text}
+                </button>
+            `).join('');
+
+            root.innerHTML = `
+                <div class="space-y-6 w-full animate-pop-in">
+                    <div class="flex justify-between items-center border-b-2 border-purple-100 pb-4">
+                        <div class="flex space-x-1 flex-wrap max-w-[70%]">${heartsHtml}</div>
+                        <span class="font-bold text-purple-500 bg-purple-100 px-3 py-1 rounded-full text-sm shrink-0">
+                            Score: ${score} 💜
+                        </span>
+                    </div>
+                    
+                    <div class="bg-pink-50 p-5 rounded-2xl border-2 border-pink-100 shadow-inner">
+                        <h2 class="text-xl font-bold text-purple-800 leading-snug">
+                            <span class="text-purple-500">Q${currentQIndex + 1}.</span> ${q.q}
+                        </h2>
+                    </div>
+                    
+                    <div class="space-y-3" id="options-container">
+                        ${optionsHtml}
+                    </div>
+                    
+                    <div id="feedback-container" class="hidden mt-6 animate-pop-in"></div>
+                </div>
+            `;
+        }
+
+        window.handleOption = function(idx, isCorrect) {
+            if (isAnswering) return;
+            isAnswering = true;
+            
+            const q = quizData[currentQIndex];
+            const feedbackContainer = document.getElementById('feedback-container');
+            const clickedBtn = document.getElementById(`opt-${idx}`);
+            const selectedText = q.opts[idx].t || q.opts[idx].text;
+            
+            // Save to history for the report
+            userAnswers.push({
+                question: q.q,
+                selected: selectedText,
+                isCorrect: isCorrect,
+                explanation: q.exp
+            });
+
+            // Disable all buttons
+            document.querySelectorAll('#options-container button').forEach(btn => {
+                btn.disabled = true;
+                btn.classList.add('opacity-50', 'cursor-not-allowed');
+                btn.classList.remove('hover:bg-purple-50', 'hover:border-purple-300');
+            });
+
+            if (isCorrect) {
+                score++;
+                playSound('correct');
+                clickedBtn.className = "w-full text-left p-4 rounded-2xl border-2 font-bold bg-green-100 border-green-400 text-green-800 scale-[1.02] shadow-md transition-all";
+                
+                const praise = motivationalPhrases[Math.floor(Math.random() * motivationalPhrases.length)];
+                feedbackContainer.innerHTML = `
+                    <div class="p-4 rounded-2xl animate-pulse-soft border-2 bg-purple-50 border-purple-300">
+                        <p class="font-bold text-lg mb-1 flex items-center gap-2">
+                            <i data-lucide="star" class="w-5 h-5 text-yellow-400" fill="currentColor"></i> ${praise}
+                        </p>
+                        <p class="text-sm font-semibold text-purple-800 opacity-90">${q.exp}</p>
+                    </div>
+                `;
+            } else {
+                playSound('incorrect');
+                clickedBtn.className = "w-full text-left p-4 rounded-2xl border-2 font-bold bg-red-100 border-red-400 text-red-800 scale-[0.98] transition-all";
+                
+                // Highlight the correct one
+                const correctIdx = q.opts.findIndex(o => o.c);
+                const correctBtn = document.getElementById(`opt-${correctIdx}`);
+                correctBtn.classList.remove('opacity-50');
+                correctBtn.classList.add('bg-green-50', 'border-green-300', 'text-green-800');
+
+                feedbackContainer.innerHTML = `
+                    <div class="p-4 rounded-2xl animate-pulse-soft border-2 bg-pink-50 border-pink-300">
+                        <p class="font-bold text-lg mb-1 flex items-center gap-2">
+                            <i data-lucide="heart" class="w-5 h-5 text-pink-400" fill="currentColor"></i> Oopsie! Not quite!
+                        </p>
+                        <p class="text-sm font-semibold text-purple-800 opacity-90">${q.exp}</p>
+                    </div>
+                `;
+            }
+
+            feedbackContainer.classList.remove('hidden');
+            lucide.createIcons();
+
+            setTimeout(() => {
+                if (currentQIndex < quizData.length - 1) {
+                    currentQIndex++;
+                    renderQuestion();
+                } else {
+                    renderReport();
+                }
+            }, 3800); // 3.8 seconds to read feedback
+        }
+
+        function renderReport() {
+            let message = score === quizData.length 
+                ? "Absolute perfection! You're a physics queen! 👑✨" 
+                : score >= quizData.length / 2 
+                    ? "So proud of you! You're glowing with knowledge! 💖"
+                    : "Every mistake is a chance to learn! Keep shining! 🌟";
+
+            // Generate detailed report HTML
+            let reportHtml = userAnswers.map((ans, i) => `
+                <div class="bg-white p-4 rounded-2xl border-2 ${ans.isCorrect ? 'border-green-200' : 'border-red-200'} shadow-sm">
+                    <p class="font-bold text-purple-800 mb-2 text-sm leading-tight">
+                        <span class="${ans.isCorrect ? 'text-green-500' : 'text-red-500'} mr-1">
+                            ${ans.isCorrect ? '✅' : '❌'}
+                        </span>
+                        Q${i + 1}: ${ans.question}
+                    </p>
+                    <div class="bg-gray-50 rounded-xl p-3 mb-2 text-sm">
+                        <span class="text-gray-500 text-xs uppercase font-bold block mb-1">You answered:</span>
+                        <span class="${ans.isCorrect ? 'text-green-600 font-bold' : 'text-red-500 line-through'}">${ans.selected}</span>
+                    </div>
+                    <p class="text-xs text-purple-600 italic bg-purple-50 p-2 rounded-lg border border-purple-100">
+                        <strong>Review:</strong> ${ans.explanation}
+                    </p>
+                </div>
+            `).join('');
+
+            root.innerHTML = `
+                <div class="flex flex-col h-full w-full animate-pop-in">
+                    <div class="text-center mb-6 shrink-0">
+                        <div class="w-20 h-20 mx-auto bg-purple-100 rounded-full flex items-center justify-center mb-4 border-4 border-white shadow-md">
+                            <i data-lucide="award" class="w-10 h-10 text-yellow-500"></i>
+                        </div>
+                        <h3 class="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-500 to-pink-500">
+                            Score Report 📊
+                        </h3>
+                        <p class="text-purple-600 font-medium italic mt-2">${message}</p>
+                    </div>
+                    
+                    <div class="bg-purple-50 w-full p-4 rounded-2xl border-2 border-purple-200 text-center mb-6 shrink-0 shadow-inner">
+                        <p class="text-lg text-purple-700 mb-1">Final Score:</p>
+                        <p class="text-4xl font-black text-purple-500">${score} / ${quizData.length}</p>
+                    </div>
+
+                    <!-- Scrollable Report Area -->
+                    <div class="flex-grow overflow-y-auto custom-scrollbar pr-2 space-y-4 mb-6 max-h-[35vh]">
+                        <h4 class="font-bold text-purple-400 text-sm uppercase tracking-wider sticky top-0 bg-white/90 backdrop-blur-sm py-2">Question Breakdown:</h4>
+                        ${reportHtml}
+                    </div>
+
+                    <div class="shrink-0 flex gap-4">
+                        <button onclick="startQuiz()" class="flex-1 py-4 bg-gradient-to-r from-purple-400 to-pink-400 hover:from-purple-500 hover:to-pink-500 text-white rounded-2xl font-bold text-lg shadow-lg transform transition active:scale-95 flex items-center justify-center gap-2">
+                            <i data-lucide="refresh-ccw" class="w-5 h-5"></i> Retake
+                        </button>
+                        <a href="ayosh_hub.html" class="flex-1 py-4 bg-white border-2 border-purple-200 hover:bg-purple-50 text-purple-600 rounded-2xl font-bold text-lg shadow-sm transform transition active:scale-95 flex items-center justify-center gap-2 text-center">
+                            <i data-lucide="home" class="w-5 h-5"></i> Hub
+                        </a>
+                    </div>
+                </div>
+            `;
+            lucide.createIcons();
+        }
+
+        // Init
+        renderStart();
+    </script>
+</body>
+</html>
