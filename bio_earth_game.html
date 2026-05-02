@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Biology & Earth Master Game 🧬🎀</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;800;900&display=swap" rel="stylesheet">
+    
+    <style>
+        body { font-family: 'Nunito', sans-serif; }
+
+        /* Magical Animations */
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        @keyframes pulse-soft {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.95; transform: scale(0.98); }
+        }
+        @keyframes pop-in {
+            0% { transform: scale(0.8); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .animate-float { animation: float 3s ease-in-out infinite; }
+        .animate-pulse-soft { animation: pulse-soft 2s ease-in-out infinite; }
+        .animate-pop-in { animation: pop-in 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+
+        /* Custom Button Hover */
+        .quiz-btn { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .quiz-btn:hover:not(:disabled) {
+            transform: translateY(-3px) scale(1.01);
+            box-shadow: 0 10px 15px -3px rgba(167, 139, 250, 0.3); /* purple-400 shadow */
+        }
+        .unit-card:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 15px 20px -5px rgba(244, 114, 182, 0.3);
+        }
+        
+        /* Scrollbar for the report */
+        .custom-scrollbar::-webkit-scrollbar { width: 8px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f3e8ff; border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #c084fc; border-radius: 10px; }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-violet-100 via-fuchsia-50 to-pink-100 min-h-screen text-violet-900 flex items-center justify-center p-4 selection:bg-violet-300 selection:text-white">
+
+    <!-- Game Container -->
+    <div id="app-container" class="max-w-2xl w-full bg-white/90 backdrop-blur-sm rounded-[2.5rem] shadow-2xl border-4 border-violet-200 overflow-hidden relative min-h-[550px] flex flex-col">
+        <!-- Top decorative bar -->
+        <div class="h-4 bg-gradient-to-r from-violet-400 via-fuchsia-400 to-pink-400 w-full shrink-0"></div>
+
+        <!-- Dynamic Content Root -->
+        <div id="root" class="flex-grow p-6 md:p-8 flex flex-col justify-center"></div>
+    </div>
+
+    <script>
+        // --- QUIZ DATABASES PER UNIT ---
+        const quizDatabase = {
+            unit1: [
+                {
+                    q: "Why do Red Blood Cells not have a nucleus? 🩸",
+                    opts: [
+                        { t: "So they can bounce around easily 🏀", c: false },
+                        { t: "To leave more room for haemoglobin to carry oxygen! 🌬️", c: true },
+                        { t: "Because they forgot to grow one 🤷‍♀️", c: false },
+                        { t: "To make them completely invisible 👻", c: false }
+                    ],
+                    exp: "Yass! No nucleus means extra space for haemoglobin, allowing them to carry max oxygen to your cells!"
+                },
+                {
+                    q: "What is the word equation for Aerobic Respiration? ✨",
+                    opts: [
+                        { t: "Glucose + Oxygen ➔ Carbon Dioxide + Water 💧", c: true },
+                        { t: "Water + Sun ➔ Glucose + Oxygen ☀️", c: false },
+                        { t: "Carbon Dioxide + Oxygen ➔ Energy 🔥", c: false },
+                        { t: "Sugar + Water ➔ Fat + Energy 🍬", c: false }
+                    ],
+                    exp: "Perfect! It happens in the mitochondria: glucose and oxygen react to release energy, producing CO2 and water."
+                },
+                {
+                    q: "What do 'antagonistic pairs' of muscles do? 💪",
+                    opts: [
+                        { t: "They argue all the time 🗣️", c: false },
+                        { t: "One pulls the bone one way, and the other pulls it the opposite way! ↔️", c: true },
+                        { t: "They push bones away from joints 🛑", c: false },
+                        { t: "They connect bones to other bones 🦴", c: false }
+                    ],
+                    exp: "Because muscles can only PULL (not push), they must work in pairs (like the biceps and triceps) to move a joint back and forth!"
+                },
+                {
+                    q: "Which blood vessels have walls that are only ONE cell thick? 🔬",
+                    opts: [
+                        { t: "Arteries 🛣️", c: false },
+                        { t: "Veins 🚇", c: false },
+                        { t: "Capillaries 🕸️", c: true },
+                        { t: "Trachea 🫁", c: false }
+                    ],
+                    exp: "Capillaries are super thin so substances (like oxygen and glucose) can easily diffuse in and out of the cells!"
+                }
+            ],
+            unit2: [
+                {
+                    q: "Which nutrient is absolutely essential for Growth and Repair? 🧱",
+                    opts: [
+                        { t: "Carbohydrates 🍞", c: false },
+                        { t: "Proteins 🍗", c: true },
+                        { t: "Fats 🧈", c: false },
+                        { t: "Vitamins 🍊", c: false }
+                    ],
+                    exp: "Proteins build new cells and repair your body! That's why athletes and growing kids need lots of it."
+                },
+                {
+                    q: "What health issue can be caused by eating too many carbs and fats without exercising? 🛋️",
+                    opts: [
+                        { t: "Obesity and Type 2 Diabetes 📉", c: true },
+                        { t: "Catching a cold 🤧", c: false },
+                        { t: "Losing your memory 🧠", c: false },
+                        { t: "Iron deficiency 🩸", c: false }
+                    ],
+                    exp: "Excess carbs and fats are stored in the body. This can lead to obesity and Type 2 diabetes (too much glucose in blood)."
+                },
+                {
+                    q: "What does the sticky black Tar in tobacco smoke do? 🚬",
+                    opts: [
+                        { t: "It makes your teeth white 🦷", c: false },
+                        { t: "It coats your lungs and can cause Cancer! 🛑", c: true },
+                        { t: "It helps you breathe deeper 🌬️", c: false },
+                        { t: "It kills stomach bugs 🦠", c: false }
+                    ],
+                    exp: "Tar is highly toxic! It paralyses your lung's sweeping cilia and contains chemicals that trigger cancer tumours."
+                },
+                {
+                    q: "What is a 'balanced diet'? 🥗",
+                    opts: [
+                        { t: "Eating exactly 50% pizza and 50% cake 🍕", c: false },
+                        { t: "Eating the correct amounts of nutrients from a wide variety of foods! 🌈", c: true },
+                        { t: "Eating standing on one leg 🦩", c: false },
+                        { t: "Only drinking water and vitamins 💧", c: false }
+                    ],
+                    exp: "A balanced diet provides all the carbs, fats, proteins, vitamins, and minerals your body needs to thrive!"
+                }
+            ],
+            unit3: [
+                {
+                    q: "What is the definition of a Habitat? 🏡",
+                    opts: [
+                        { t: "The whole entire Earth 🌍", c: false },
+                        { t: "A group of animals sleeping 💤", c: false },
+                        { t: "The specific place where an organism naturally lives! 🌳", c: true },
+                        { t: "The weather in a forest 🌧️", c: false }
+                    ],
+                    exp: "Yes! A habitat provides an organism with water, shelter, and food. Many habitats make up an ecosystem!"
+                },
+                {
+                    q: "What is an 'Invasive Species'? 🚨",
+                    opts: [
+                        { t: "A non-native species that causes damage to an ecosystem! 🐍", c: true },
+                        { t: "An animal that hugs you 🐨", c: false },
+                        { t: "A plant that grows very slowly 🌱", c: false },
+                        { t: "A bird that builds nests 🪹", c: false }
+                    ],
+                    exp: "Invasive species (like the brown tree snake in Guam) arrive in new areas, eat native species, and grow out of control!"
+                },
+                {
+                    q: "What do the arrows in a Food Chain show? ➡️",
+                    opts: [
+                        { t: "Which way the wind blows 🌬️", c: false },
+                        { t: "The flow of energy from one organism to another! ⚡", c: true },
+                        { t: "Who is the fastest runner 🐆", c: false },
+                        { t: "Who likes who 💕", c: false }
+                    ],
+                    exp: "The arrows point to the 'eater', showing exactly how energy passes up through the trophic levels!"
+                },
+                {
+                    q: "What is 'Bioaccumulation'? ☠️",
+                    opts: [
+                        { t: "When animals collect shiny rocks 🪨", c: false },
+                        { t: "The build-up of a poisonous substance inside an organism because it can't be excreted! 🐟", c: true },
+                        { t: "When plants grow too tall 🌲", c: false },
+                        { t: "When animals learn to read 📚", c: false }
+                    ],
+                    exp: "Poisons like mercury don't break down! They build up in small animals, and get worse as they pass up the food chain to top predators."
+                }
+            ],
+            unit11: [
+                {
+                    q: "What is the exact difference between Weather and Climate? 🌤️",
+                    opts: [
+                        { t: "Weather is hot, climate is cold 🌡️", c: false },
+                        { t: "Weather is local/short-term, Climate is large area/long-term! 🌍", c: true },
+                        { t: "They are exactly the same thing 🤷‍♀️", c: false },
+                        { t: "Climate is only about rain 🌧️", c: false }
+                    ],
+                    exp: "Yass! Weather is what you see outside today. Climate is the average pattern over hundreds or thousands of years!"
+                },
+                {
+                    q: "According to scientists, what is the main natural cause of the Ice Age cycle? ❄️",
+                    opts: [
+                        { t: "Small changes in the Earth's orbit around the Sun! ☀️", c: true },
+                        { t: "Too many clouds blocking the sky ☁️", c: false },
+                        { t: "The moon getting too close 🌙", c: false },
+                        { t: "Giant fans turning on at the poles 🌬️", c: false }
+                    ],
+                    exp: "Perfect! Tiny shifts in our orbit change how much of the Sun's energy reaches the Earth, triggering glacial periods!"
+                },
+                {
+                    q: "What amazing secret hides inside 'Ice Cores' drilled from deep glaciers? 🧊",
+                    opts: [
+                        { t: "Frozen dinosaur eggs 🦖", c: false },
+                        { t: "Trapped bubbles of ancient gas that show past atmospheres! 🫧", c: true },
+                        { t: "Underground rivers 🌊", c: false },
+                        { t: "Sparkling diamonds 💎", c: false }
+                    ],
+                    exp: "Scientists analyze these tiny trapped bubbles to measure ancient carbon dioxide levels and historical temperatures!"
+                },
+                {
+                    q: "What exactly is a 'Greenhouse Gas' like Carbon Dioxide? 🌿",
+                    opts: [
+                        { t: "A gas that plants breathe out 🌸", c: false },
+                        { t: "A gas that turns the sky green 🍏", c: false },
+                        { t: "A gas that reflects energy back to the surface, causing temperatures to rise! 🔥", c: true },
+                        { t: "A gas that makes glass for greenhouses 🏠", c: false }
+                    ],
+                    exp: "Eco-Queen! Greenhouse gases act like a warm blanket over the planet, trapping the energy reflecting off the Earth."
+                }
+            ]
+        };
+
+        const motivationalPhrases = [
+            "You're a genius, bestie! ✨",
+            "Absolute science queen! 👑",
+            "Keep glowing, you got this! 💖",
+            "Flawless logic! 🌟",
+            "Yasss! Smart and cute! 🎀"
+        ];
+
+        // --- STATE ---
+        let currentUnit = null;
+        let activeQuiz = [];
+        let currentQIndex = 0;
+        let score = 0;
+        let userAnswers = [];
+        let audioCtx = null;
+        let isAnswering = false;
+
+        const root = document.getElementById('root');
+
+        // --- AUDIO SYSTEM ---
+        function initAudio() {
+            if (!audioCtx) {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                audioCtx = new AudioContext();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        function playSound(type) {
+            if (!audioCtx) return;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            if (type === 'correct') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(523.25, audioCtx.currentTime); // C5
+                osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.1); // E5
+                osc.frequency.setValueAtTime(880.00, audioCtx.currentTime + 0.2); // A5
+                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.5);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.5);
+            } else {
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(300, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(200, audioCtx.currentTime + 0.3);
+                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.3);
+            }
+        }
+
+        // --- VIEWS ---
+        function renderMenu() {
+            root.innerHTML = `
+                <div class="text-center space-y-6 flex flex-col items-center animate-pop-in w-full">
+                    <div class="w-20 h-20 bg-fuchsia-100 rounded-full flex items-center justify-center animate-float shadow-inner border-4 border-white">
+                        <i data-lucide="microscope" class="w-10 h-10 text-fuchsia-500"></i>
+                    </div>
+                    <h1 class="text-3xl md:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-violet-500 to-fuchsia-500">
+                        Biology & Earth Master! 🧬
+                    </h1>
+                    <p class="text-violet-700 font-medium px-4">
+                        Which magical unit are we studying today, gorgeous?
+                    </p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full pt-2">
+                        <button onclick="startQuiz('unit1')" class="unit-card p-4 bg-white border-2 border-rose-200 rounded-2xl flex flex-col items-center gap-2 transition-all">
+                            <i data-lucide="activity" class="w-8 h-8 text-rose-500"></i>
+                            <span class="font-bold text-rose-700">Ch 1: Respiration</span>
+                        </button>
+                        <button onclick="startQuiz('unit2')" class="unit-card p-4 bg-white border-2 border-orange-200 rounded-2xl flex flex-col items-center gap-2 transition-all">
+                            <i data-lucide="apple" class="w-8 h-8 text-orange-500"></i>
+                            <span class="font-bold text-orange-700">Ch 2: Nutrition</span>
+                        </button>
+                        <button onclick="startQuiz('unit3')" class="unit-card p-4 bg-white border-2 border-emerald-200 rounded-2xl flex flex-col items-center gap-2 transition-all">
+                            <i data-lucide="leaf" class="w-8 h-8 text-emerald-500"></i>
+                            <span class="font-bold text-emerald-700">Ch 3: Ecosystems</span>
+                        </button>
+                        <button onclick="startQuiz('unit11')" class="unit-card p-4 bg-white border-2 border-cyan-200 rounded-2xl flex flex-col items-center gap-2 transition-all">
+                            <i data-lucide="globe" class="w-8 h-8 text-cyan-500"></i>
+                            <span class="font-bold text-cyan-700">Ch 11: Earth & Climate</span>
+                        </button>
+                    </div>
+
+                    <a href="index.html" class="mt-4 inline-flex items-center gap-2 text-violet-500 hover:text-fuchsia-500 font-bold transition-colors bg-white px-6 py-2 rounded-full shadow-sm border border-violet-100">
+                        <i data-lucide="home" class="w-4 h-4"></i> Back to Hub
+                    </a>
+                </div>
+            `;
+            lucide.createIcons();
+        }
+
+        window.startQuiz = function(unitKey) {
+            initAudio();
+            currentUnit = unitKey;
+            activeQuiz = quizDatabase[unitKey];
+            currentQIndex = 0;
+            score = 0;
+            userAnswers = [];
+            renderQuestion();
+        }
+
+        function renderQuestion() {
+            isAnswering = false;
+            const q = activeQuiz[currentQIndex];
+            
+            // Build Hearts Progress (Fuchsia theme)
+            let heartsHtml = '';
+            for(let i=0; i<activeQuiz.length; i++) {
+                let fill = i <= currentQIndex ? 'currentColor' : 'none';
+                let opacity = i <= currentQIndex ? '1' : '0.3';
+                heartsHtml += `<svg class="w-5 h-5 text-fuchsia-400" style="opacity: ${opacity};" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="${fill}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>`;
+            }
+
+            let optionsHtml = q.opts.map((opt, idx) => `
+                <button id="opt-${idx}" onclick="handleOption(${idx}, ${opt.c})" class="quiz-btn w-full text-left p-4 rounded-2xl border-2 border-violet-100 bg-white font-medium text-violet-700 hover:bg-violet-50 hover:border-violet-300">
+                    ${opt.t}
+                </button>
+            `).join('');
+
+            root.innerHTML = `
+                <div class="space-y-6 w-full animate-pop-in">
+                    <div class="flex justify-between items-center border-b-2 border-violet-100 pb-4">
+                        <div class="flex space-x-1 flex-wrap max-w-[70%]">${heartsHtml}</div>
+                        <span class="font-bold text-fuchsia-600 bg-fuchsia-100 px-3 py-1 rounded-full text-sm shrink-0">
+                            Score: ${score} 💖
+                        </span>
+                    </div>
+                    
+                    <div class="bg-violet-50 p-5 rounded-2xl border-2 border-violet-100 shadow-inner">
+                        <h2 class="text-xl font-bold text-violet-900 leading-snug">
+                            <span class="text-fuchsia-500">Q${currentQIndex + 1}.</span> ${q.q}
+                        </h2>
+                    </div>
+                    
+                    <div class="space-y-3" id="options-container">
+                        ${optionsHtml}
+                    </div>
+                    
+                    <div id="feedback-container" class="hidden mt-6 animate-pop-in"></div>
+                </div>
+            `;
+        }
+
+        window.handleOption = function(idx, isCorrect) {
+            if (isAnswering) return;
+            isAnswering = true;
+            
+            const q = activeQuiz[currentQIndex];
+            const feedbackContainer = document.getElementById('feedback-container');
+            const clickedBtn = document.getElementById(`opt-${idx}`);
+            const selectedText = q.opts[idx].t;
+            
+            // Save to history for the report
+            userAnswers.push({
+                question: q.q,
+                selected: selectedText,
+                isCorrect: isCorrect,
+                explanation: q.exp
+            });
+
+            // Disable all buttons
+            document.querySelectorAll('#options-container button').forEach(btn => {
+                btn.disabled = true;
+                btn.classList.add('opacity-50', 'cursor-not-allowed');
+                btn.classList.remove('hover:bg-violet-50', 'hover:border-violet-300');
+            });
+
+            if (isCorrect) {
+                score++;
+                playSound('correct');
+                clickedBtn.className = "w-full text-left p-4 rounded-2xl border-2 font-bold bg-green-100 border-green-400 text-green-800 scale-[1.02] shadow-md transition-all";
+                
+                const praise = motivationalPhrases[Math.floor(Math.random() * motivationalPhrases.length)];
+                feedbackContainer.innerHTML = `
+                    <div class="p-4 rounded-2xl animate-pulse-soft border-2 bg-fuchsia-50 border-fuchsia-300">
+                        <p class="font-bold text-lg mb-1 flex items-center gap-2">
+                            <i data-lucide="star" class="w-5 h-5 text-yellow-400" fill="currentColor"></i> ${praise}
+                        </p>
+                        <p class="text-sm font-semibold text-violet-800 opacity-90">${q.exp}</p>
+                    </div>
+                `;
+            } else {
+                playSound('incorrect');
+                clickedBtn.className = "w-full text-left p-4 rounded-2xl border-2 font-bold bg-red-100 border-red-400 text-red-800 scale-[0.98] transition-all";
+                
+                // Highlight the correct one
+                const correctIdx = q.opts.findIndex(o => o.c);
+                const correctBtn = document.getElementById(`opt-${correctIdx}`);
+                correctBtn.classList.remove('opacity-50');
+                correctBtn.classList.add('bg-green-50', 'border-green-300', 'text-green-800');
+
+                feedbackContainer.innerHTML = `
+                    <div class="p-4 rounded-2xl animate-pulse-soft border-2 bg-violet-50 border-violet-300">
+                        <p class="font-bold text-lg mb-1 flex items-center gap-2">
+                            <i data-lucide="heart" class="w-5 h-5 text-fuchsia-400" fill="currentColor"></i> Oopsie! Not quite!
+                        </p>
+                        <p class="text-sm font-semibold text-violet-800 opacity-90">${q.exp}</p>
+                    </div>
+                `;
+            }
+
+            feedbackContainer.classList.remove('hidden');
+            lucide.createIcons();
+
+            setTimeout(() => {
+                if (currentQIndex < activeQuiz.length - 1) {
+                    currentQIndex++;
+                    renderQuestion();
+                } else {
+                    renderReport();
+                }
+            }, 3800);
+        }
+
+        function renderReport() {
+            let message = score === activeQuiz.length 
+                ? "Absolute perfection! You're a biology queen! 👑✨" 
+                : score >= activeQuiz.length / 2 
+                    ? "So proud of you! You're glowing with knowledge! 💖"
+                    : "Every mistake is a chance to learn! Keep shining! 🌟";
+
+            // Generate detailed report HTML
+            let reportHtml = userAnswers.map((ans, i) => `
+                <div class="bg-white p-4 rounded-2xl border-2 ${ans.isCorrect ? 'border-green-200' : 'border-red-200'} shadow-sm">
+                    <p class="font-bold text-violet-900 mb-2 text-sm leading-tight">
+                        <span class="${ans.isCorrect ? 'text-green-500' : 'text-red-500'} mr-1">
+                            ${ans.isCorrect ? '✅' : '❌'}
+                        </span>
+                        Q${i + 1}: ${ans.question}
+                    </p>
+                    <div class="bg-slate-50 rounded-xl p-3 mb-2 text-sm">
+                        <span class="text-slate-400 text-xs uppercase font-bold block mb-1">You answered:</span>
+                        <span class="${ans.isCorrect ? 'text-green-600 font-bold' : 'text-red-500 line-through'}">${ans.selected}</span>
+                    </div>
+                    <p class="text-xs text-violet-700 italic bg-violet-50 p-2 rounded-lg border border-violet-100">
+                        <strong>Review:</strong> ${ans.explanation}
+                    </p>
+                </div>
+            `).join('');
+
+            root.innerHTML = `
+                <div class="flex flex-col h-full w-full animate-pop-in">
+                    <div class="text-center mb-6 shrink-0">
+                        <div class="w-20 h-20 mx-auto bg-fuchsia-100 rounded-full flex items-center justify-center mb-4 border-4 border-white shadow-md">
+                            <i data-lucide="award" class="w-10 h-10 text-yellow-500"></i>
+                        </div>
+                        <h3 class="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-fuchsia-500 to-violet-500">
+                            Score Report 📊
+                        </h3>
+                        <p class="text-fuchsia-600 font-medium italic mt-2">${message}</p>
+                    </div>
+                    
+                    <div class="bg-violet-50 w-full p-4 rounded-2xl border-2 border-violet-200 text-center mb-6 shrink-0 shadow-inner">
+                        <p class="text-lg text-violet-800 mb-1">Final Score:</p>
+                        <p class="text-4xl font-black text-fuchsia-500">${score} / ${activeQuiz.length}</p>
+                    </div>
+
+                    <!-- Scrollable Report Area -->
+                    <div class="flex-grow overflow-y-auto custom-scrollbar pr-2 space-y-4 mb-6 max-h-[35vh]">
+                        <h4 class="font-bold text-fuchsia-500 text-sm uppercase tracking-wider sticky top-0 bg-white/90 backdrop-blur-sm py-2">Question Breakdown:</h4>
+                        ${reportHtml}
+                    </div>
+
+                    <div class="shrink-0 flex gap-4">
+                        <button onclick="renderMenu()" class="flex-1 py-4 bg-gradient-to-r from-fuchsia-400 to-violet-400 hover:from-fuchsia-500 hover:to-violet-500 text-white rounded-2xl font-bold text-lg shadow-lg transform transition active:scale-95 flex items-center justify-center gap-2">
+                            <i data-lucide="menu" class="w-5 h-5"></i> Unit Menu
+                        </button>
+                        <a href="index.html" class="flex-1 py-4 bg-white border-2 border-violet-200 hover:bg-violet-50 text-violet-600 rounded-2xl font-bold text-lg shadow-sm transform transition active:scale-95 flex items-center justify-center gap-2 text-center">
+                            <i data-lucide="home" class="w-5 h-5"></i> Hub
+                        </a>
+                    </div>
+                </div>
+            `;
+            lucide.createIcons();
+        }
+
+        // Init
+        renderMenu();
+    </script>
+</body>
+</html>
